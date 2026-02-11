@@ -25,12 +25,22 @@ public class ChannelPackerWindow : EditorWindow
         _textureB = (Texture2D)EditorGUILayout.ObjectField("B Channel", _textureB, typeof(Texture2D), false);
         _textureA = (Texture2D)EditorGUILayout.ObjectField("A Channel", _textureA, typeof(Texture2D), false);
         EditorGUILayout.Space();
+        string sizeError = GetSizeError();
+        if (sizeError  != null)
+        {
+            EditorGUILayout.HelpBox(sizeError, MessageType.Error);
+        }
+        
+        GUI.enabled = sizeError == null;
+        
         if (GUILayout.Button("Pack"))
         {
             Pack();
         }
+        
+        GUI.enabled = true;
     }
-    
+
     private void Pack()
     {
         Texture2D referenceTexture = _textureR ?? _textureG ?? _textureB ?? _textureA;
@@ -114,5 +124,39 @@ public class ChannelPackerWindow : EditorWindow
         importer.isReadable = readable;
         importer.SaveAndReimport();
         return wasReadable;
+    }
+    
+    private string GetSizeError()
+    {
+        Texture2D[] textures = { _textureR, _textureG, _textureB, _textureA };
+        Texture2D referenceTexture = null;
+        foreach (Texture2D texture in textures)
+        {
+            if (texture != null)
+            {
+                referenceTexture = texture;
+                break;
+            }
+        }
+
+        if (referenceTexture == null)
+        {
+            return null;
+        }
+
+        foreach (Texture2D texture in textures)
+        {
+            if (texture == null)
+            {
+                continue;
+            }
+
+            if (texture.width != referenceTexture.width || texture.height != referenceTexture.height)
+            {
+                return
+                    $"The sizes don't match: {referenceTexture.width}x{referenceTexture.height} and {texture.width}x{texture.height}";
+            }
+        }
+        return null;
     }
 }
