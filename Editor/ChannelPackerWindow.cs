@@ -39,6 +39,25 @@ public class ChannelPackerWindow : EditorWindow
             Debug.LogWarning("Channel Packer: add at least one texture");
         }
         
+        string path = EditorUtility.SaveFilePanelInProject(
+            "Save", "pack", "png", "Choose where to save");
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+        
+        Texture2D[] textures = { _textureR, _textureG, _textureB, _textureA };
+        bool[] wasReadable = new bool[4];
+
+        for (int i = 0; i < textures.Length; i++)
+        {
+            if (textures[i] != null)
+            {
+                wasReadable[i] = SetTextureReadable(textures[i], true);
+            }
+        }
+        
         int width = referenceTexture.width;
         int height = referenceTexture.height;
         
@@ -62,10 +81,38 @@ public class ChannelPackerWindow : EditorWindow
         resultTexture2D.Apply();
         
         byte[] bytes = resultTexture2D.EncodeToPNG();
-        string path = Application.dataPath + "/pack.png";
         File.WriteAllBytes(path, bytes);
         AssetDatabase.Refresh();
+
+        for (int i = 0; i < textures.Length; i++)
+        {
+            if (textures[i] != null && !wasReadable[i])
+            {
+                SetTextureReadable(textures[i], false);
+            }
+        }
         
         Debug.Log("Channel Packer: Saved in" + path);
+    }
+
+    private bool SetTextureReadable(Texture2D texture, bool readable)
+    {
+        string path = AssetDatabase.GetAssetPath(texture);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+        if (importer == null)
+        {
+            return false;
+        }
+
+        bool wasReadable = importer.isReadable;
+        if (wasReadable == readable)
+        {
+            return wasReadable;
+        }
+
+        importer.isReadable = readable;
+        importer.SaveAndReimport();
+        return wasReadable;
     }
 }
