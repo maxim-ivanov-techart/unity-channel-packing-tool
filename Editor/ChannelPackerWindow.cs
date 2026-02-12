@@ -32,23 +32,10 @@ public class ChannelPackerWindow : EditorWindow
         EditorGUILayout.Space();
         
         EditorGUILayout.BeginHorizontal();
-        _textureR = (Texture2D)EditorGUILayout.ObjectField("R Channel", _textureR, typeof(Texture2D), false);
-        _channelR = (TextureChannel)EditorGUILayout.EnumPopup(_channelR, GUILayout.Width(50));
-        EditorGUILayout.EndHorizontal();
-        
-        EditorGUILayout.BeginHorizontal();
-        _textureG = (Texture2D)EditorGUILayout.ObjectField("G Channel", _textureG, typeof(Texture2D), false);
-        _channelG = (TextureChannel)EditorGUILayout.EnumPopup(_channelG, GUILayout.Width(50));
-        EditorGUILayout.EndHorizontal();
-        
-        EditorGUILayout.BeginHorizontal();
-        _textureB = (Texture2D)EditorGUILayout.ObjectField("B Channel", _textureB, typeof(Texture2D), false);
-        _channelB = (TextureChannel)EditorGUILayout.EnumPopup(_channelB, GUILayout.Width(50));
-        EditorGUILayout.EndHorizontal();
-        
-        EditorGUILayout.BeginHorizontal();
-        _textureA = (Texture2D)EditorGUILayout.ObjectField("A Channel", _textureA, typeof(Texture2D), false);
-        _channelA = (TextureChannel)EditorGUILayout.EnumPopup(_channelA, GUILayout.Width(50));
+        DrawChannelSlot("R", ref _textureR, ref _channelR, new Color(1f, 0.3f, 0.3f));
+        DrawChannelSlot("G", ref _textureG, ref _channelG, new Color(0.3f, 1f, 0.3f));
+        DrawChannelSlot("B", ref _textureB, ref _channelB, new Color(0.3f, 0.6f, 1f));
+        DrawChannelSlot("A", ref _textureA, ref _channelA, Color.white);
         EditorGUILayout.EndHorizontal();
         
         EditorGUILayout.Space();
@@ -198,5 +185,24 @@ public class ChannelPackerWindow : EditorWindow
             case TextureChannel.A: return color.a;
             default: return 0f;
         }
+    }
+
+    private void DrawChannelSlot(string label, ref Texture2D texture, ref TextureChannel channel, Color labelColor)
+    {
+        float blockWidth = (position.width - 20) / 4;
+        EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(blockWidth));
+        float previewSize = blockWidth - 10;
+        texture = (Texture2D)EditorGUI.ObjectField(
+            GUILayoutUtility.GetRect(previewSize, previewSize),
+            texture,
+            typeof(Texture2D),
+            false
+        );
+        GUIStyle labelStyle = new GUIStyle(EditorStyles.boldLabel);
+        labelStyle.normal.textColor = labelColor;
+        labelStyle.alignment = TextAnchor.MiddleCenter;
+        GUILayout.Label(label, labelStyle);
+        channel = (TextureChannel)EditorGUILayout.EnumPopup(channel);
+        EditorGUILayout.EndVertical();
     }
 }
