@@ -56,6 +56,10 @@ public class ChannelPackerWindow : EditorWindow
         GUI.enabled = true;
     }
 
+    /// <summary>
+    /// Packs selected texture channels into a single RGBA texture and saves it as PNG.
+    /// Enable read/write settings automatically and restores them after packing.
+    /// </summary>
     private void Pack()
     {
         Texture2D referenceTexture = _textureR ?? _textureG ?? _textureB ?? _textureA;
@@ -120,6 +124,12 @@ public class ChannelPackerWindow : EditorWindow
         Debug.Log("Channel Packer: Saved in" + path);
     }
 
+    /// <summary>
+    /// Enables or disables read/write setting for a texture and reimports it.
+    /// </summary>
+    /// <param name="texture">Target texture to modify</param>
+    /// <param name="readable">Read/write state</param>
+    /// <returns>Original read/write state before modification</returns>
     private bool SetTextureReadable(Texture2D texture, bool readable)
     {
         string path = AssetDatabase.GetAssetPath(texture);
@@ -141,6 +151,10 @@ public class ChannelPackerWindow : EditorWindow
         return wasReadable;
     }
     
+    /// <summary>
+    /// Validates that all assigned textures have matching dimensions.
+    /// </summary>
+    /// <returns>Error message if sizes mismatch, null if valid</returns>
     private string GetSizeError()
     {
         Texture2D[] textures = { _textureR, _textureG, _textureB, _textureA };
@@ -175,6 +189,12 @@ public class ChannelPackerWindow : EditorWindow
         return null;
     }
 
+    /// <summary>
+    /// Extracts a specific color channel value from a Color struct.
+    /// </summary>
+    /// <param name="color">Source color</param>
+    /// <param name="channel">Channel to extract (R, G, B, or A)</param>
+    /// <returns>Channel value (0-1 range)</returns>
     private float GetChannel(Color color, TextureChannel channel)
     {
         switch (channel)
@@ -187,6 +207,13 @@ public class ChannelPackerWindow : EditorWindow
         }
     }
 
+    /// <summary>
+    /// Draws a single channel slot UI with texture preview, label, and channel selector.
+    /// </summary>
+    /// <param name="label">Channel name to display</param>
+    /// <param name="texture">Reference to the texture</param>
+    /// <param name="channel">Reference to the channel selection</param>
+    /// <param name="labelColor">Color for the channel label</param>
     private void DrawChannelSlot(string label, ref Texture2D texture, ref TextureChannel channel, Color labelColor)
     {
         float blockWidth = (position.width - 20) / 4;
